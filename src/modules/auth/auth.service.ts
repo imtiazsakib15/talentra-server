@@ -54,4 +54,51 @@ const register = async ({
   };
 };
 
-export const AuthService = { register };
+const login = async ({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      password: true,
+      status: true,
+    },
+  });
+  if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
+
+  const isPasswordMatched = await BcryptHelper.comparePassword(
+    password,
+    user.password
+  );
+  if (!isPasswordMatched)
+    throw new AppError(httpStatus.UNAUTHORIZED, "Invalid password");
+
+  if (user.status !== UserStatus.ACTIVE)
+    throw new AppError(httpStatus.UNAUTHORIZED, "User is not active");
+
+  const payload = { id: user.id, email: user.email, role: user.role };
+  const accessToken = JwtHelper.generateToken(
+    payload,
+    config.ACCESS_TOKEN_SECRET!,
+    config.ACCESS_TOKEN_EXPIRY!
+  );
+  const refreshToken = JwtHelper.generateToken(
+    payload,
+    config.REFRESH_TOKEN_SECRET!,
+    config.REFRESH_TOKEN_EXPIRY!
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
+export const AuthService = { register, login };

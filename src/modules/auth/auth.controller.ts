@@ -21,4 +21,21 @@ const register = catchAsync(async (req, res) => {
   });
 });
 
-export const AuthController = { register };
+const login = catchAsync(async (req, res) => {
+  const { email, password } = req.body;
+  const user = await AuthService.login({ email, password });
+
+  res.cookie("refreshToken", user.refreshToken, {
+    httpOnly: !(config.NODE_ENV === "development"),
+    secure: !(config.NODE_ENV === "development"),
+  });
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "User logged in successfully",
+    data: { accessToken: user.accessToken },
+  });
+});
+
+export const AuthController = { register, login };

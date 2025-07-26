@@ -30,8 +30,8 @@ model User {
   updatedAt DateTime   @updatedAt
   lastLogin DateTime?
 
-  candidateProfile Candidate?
-  companyProfile   Company?
+  candidate Candidate?
+  company   Company?
 
   @@map("users")
 }
