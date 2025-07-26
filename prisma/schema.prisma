@@ -26,7 +26,6 @@ model User {
   password  String
   role      UserRole   @default(CANDIDATE)
   status    UserStatus @default(PENDING)
-  image     String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   lastLogin DateTime?
@@ -41,6 +40,7 @@ model Candidate {
   id          String    @id @default(uuid())
   userId      String    @unique
   fullName    String
+  image       String
   experience  Int?
   phone       String?
   address     String?
@@ -60,6 +60,7 @@ model Company {
   id          String  @id @default(uuid())
   userId      String  @unique
   companyName String
+  logo        String
   website     String?
   industry    String?
   location    String?
