@@ -41,13 +41,13 @@ model Candidate {
   userId      String    @unique
   fullName    String
   image       String
-  experience  Int?
-  phone       String?
-  address     String?
-  city        String?
-  country     String?
+  experience  Int
+  phone       String
+  address     String
+  city        String
+  country     String
   dateOfBirth DateTime?
-  resume      String?
+  resume      String
   isAvailable Boolean   @default(false)
   isVisible   Boolean   @default(true)
 
@@ -57,15 +57,15 @@ model Candidate {
 }
 
 model Company {
-  id          String  @id @default(uuid())
-  userId      String  @unique
+  id          String @id @default(uuid())
+  userId      String @unique
   companyName String
   logo        String
-  website     String?
-  industry    String?
-  location    String?
-  country     String?
-  description String?
+  website     String
+  industry    String
+  address     String
+  country     String
+  description String
 
   user User @relation(fields: [userId], references: [id])
 
