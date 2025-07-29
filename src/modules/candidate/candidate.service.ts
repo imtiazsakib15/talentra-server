@@ -1,0 +1,46 @@
+import { fileUploader } from "./../../utils/fileUploader";
+import httpStatus from "http-status";
+import { Candidate, UserStatus } from "../../../generated/prisma";
+import { AppError } from "../../errors/AppError";
+import prisma from "../../prisma/client";
+import { JwtPayload } from "jsonwebtoken";
+import { Request } from "express";
+
+const createCandidate = async (req: Request) => {
+  const userId = (req.user as JwtPayload)?.userId;
+  const data = req.body;
+  const files: {
+    image?: Express.Multer.File[];
+    resume?: Express.Multer.File[];
+  } = req.files;
+  if (!files?.image || !files?.resume) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Image and resume files are required"
+    );
+  }
+
+  const image = await fileUploader.uploadIntoCloudinary(files.image[0].path);
+  const resume = await fileUploader.uploadIntoCloudinary(files.resume[0].path);
+  if (!image || !resume) {
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "File upload failed");
+  }
+
+  data.image = image.secure_url;
+  data.resume = resume.secure_url;
+  data.userId = userId;
+
+  const result = await prisma.$transaction((tx) => {
+    const candidateProfile = tx.candidate.create({
+      data,
+    });
+    const user = tx.user.update({
+      where: { id: userId },
+      data: { status: UserStatus.ACTIVE },
+    });
+    return candidateProfile;
+  });
+  return result;
+};
+
+export const CandidateService = { createCandidate };

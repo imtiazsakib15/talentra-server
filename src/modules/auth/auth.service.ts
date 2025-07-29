@@ -36,7 +36,7 @@ const register = async ({
       "User registration failed"
     );
 
-  const payload = { id: user.id, email: user.email, role: user.role };
+  const payload = { userId: user.id, email: user.email, role: user.role };
   const accessToken = JwtHelper.generateToken(
     payload,
     config.ACCESS_TOKEN_SECRET!,
@@ -80,10 +80,10 @@ const login = async ({
   if (!isPasswordMatched)
     throw new AppError(httpStatus.UNAUTHORIZED, "Invalid password");
 
-  if (user.status !== UserStatus.ACTIVE)
+  if (user.status !== UserStatus.ACTIVE && user.status !== UserStatus.PENDING)
     throw new AppError(httpStatus.UNAUTHORIZED, "User is not active");
 
-  const payload = { id: user.id, email: user.email, role: user.role };
+  const payload = { userId: user.id, email: user.email, role: user.role };
   const accessToken = JwtHelper.generateToken(
     payload,
     config.ACCESS_TOKEN_SECRET!,
