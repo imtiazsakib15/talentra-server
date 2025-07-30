@@ -27,6 +27,7 @@ const register = async ({
       password: hashedPassword,
       role,
       status: UserStatus.PENDING,
+      lastLogin: new Date(),
     },
   });
 
@@ -82,6 +83,11 @@ const login = async ({
 
   if (user.status !== UserStatus.ACTIVE && user.status !== UserStatus.PENDING)
     throw new AppError(httpStatus.UNAUTHORIZED, "User is not active");
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { lastLogin: new Date() },
+  });
 
   const payload = { userId: user.id, email: user.email, role: user.role };
   const accessToken = JwtHelper.generateToken(
