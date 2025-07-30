@@ -1,18 +1,25 @@
 import { fileUploader } from "./../../utils/fileUploader";
 import httpStatus from "http-status";
-import { Candidate, UserStatus } from "../../../generated/prisma";
+import { UserStatus } from "../../../generated/prisma";
 import { AppError } from "../../errors/AppError";
 import prisma from "../../prisma/client";
-import { JwtPayload } from "jsonwebtoken";
 import { Request } from "express";
 
 const createCandidate = async (req: Request) => {
-  const userId = (req.user as JwtPayload)?.userId;
+  const userId = req.user!.userId;
+  const existingCandidate = await prisma.candidate.findUnique({
+    where: {
+      userId,
+    },
+  });
+  if (existingCandidate)
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Candidate profile already exists"
+    );
+
   const data = req.body;
-  const files: {
-    image?: Express.Multer.File[];
-    resume?: Express.Multer.File[];
-  } = req.files;
+  const files: any = req.files;
   if (!files?.image || !files?.resume) {
     throw new AppError(
       httpStatus.BAD_REQUEST,

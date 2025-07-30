@@ -56,7 +56,7 @@ const auth = (...roles: UserRole[]) => {
       req.user = user as TDecodedUser;
       next();
     } catch (error) {
-      return next(new AppError(httpStatus.FORBIDDEN, "No token provided"));
+      return next(error);
     }
   };
 };
