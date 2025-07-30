@@ -37,17 +37,33 @@ const createCandidate = async (req: Request) => {
   data.resume = resume.secure_url;
   data.userId = userId;
 
-  const result = await prisma.$transaction((tx) => {
-    const candidateProfile = tx.candidate.create({
+  const result = await prisma.$transaction(async (tx) => {
+    const candidateProfile = await tx.candidate.create({
       data,
     });
-    const user = tx.user.update({
+    await tx.user.update({
       where: { id: userId },
       data: { status: UserStatus.ACTIVE },
     });
+
     return candidateProfile;
   });
   return result;
 };
 
-export const CandidateService = { createCandidate };
+const getCandidateProfile = async (userId: string) => {
+  const candidateProfile = await prisma.candidate.findUnique({
+    where: {
+      userId,
+    },
+    include: {
+      user: true,
+    },
+  });
+  if (!candidateProfile)
+    throw new AppError(httpStatus.NOT_FOUND, "Candidate profile not found");
+
+  return candidateProfile;
+};
+
+export const CandidateService = { createCandidate, getCandidateProfile };

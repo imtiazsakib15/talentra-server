@@ -38,7 +38,6 @@ const auth = (...roles: UserRole[]) => {
           status: true,
         },
       });
-      console.log(authHeader);
       if (!userInfo)
         return next(new AppError(httpStatus.UNAUTHORIZED, "User not found"));
 

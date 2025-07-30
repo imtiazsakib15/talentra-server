@@ -19,4 +19,10 @@ router.post(
   CandidateController.createCandidate
 );
 
+router.get(
+  "/me",
+  auth(UserRole.CANDIDATE),
+  CandidateController.getCandidateProfile
+);
+
 export const CandidateRoute = router;
