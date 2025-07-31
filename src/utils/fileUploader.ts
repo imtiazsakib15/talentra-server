@@ -49,10 +49,12 @@ cloudinary.config({
 const uploadIntoCloudinary = async (filePath: string) => {
   try {
     const result = await cloudinary.uploader.upload(filePath);
-    await fs.unlink(filePath);
+
     return result;
   } catch (error) {
     console.error(error);
+  } finally {
+    await fs.unlink(filePath);
   }
 };
 
