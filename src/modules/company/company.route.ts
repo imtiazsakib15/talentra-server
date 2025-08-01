@@ -18,4 +18,6 @@ router.post(
 
 router.get("/me", auth(UserRole.COMPANY), CompanyController.getCompanyProfile);
 
+router.get("/:id", CompanyController.getCompanyProfileById);
+
 export const CompanyRoute = router;

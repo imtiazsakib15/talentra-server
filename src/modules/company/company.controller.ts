@@ -25,7 +25,20 @@ const getCompanyProfile = catchAsync(async (req, res) => {
   });
 });
 
+const getCompanyProfileById = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await CompanyService.getCompanyProfileById(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Company profile retrieved successfully",
+    data: result,
+  });
+});
+
 export const CompanyController = {
   createCompany,
   getCompanyProfile,
+  getCompanyProfileById,
 };
