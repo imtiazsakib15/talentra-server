@@ -66,4 +66,21 @@ const getCandidateProfile = async (userId: string) => {
   return candidateProfile;
 };
 
-export const CandidateService = { createCandidate, getCandidateProfile };
+const getCandidateProfileById = async (id: string) => {
+  const candidateProfile = await prisma.candidate.findUnique({
+    where: { id },
+    include: {
+      user: true,
+    },
+  });
+  if (!candidateProfile)
+    throw new AppError(httpStatus.NOT_FOUND, "Candidate profile not found");
+
+  return candidateProfile;
+};
+
+export const CandidateService = {
+  createCandidate,
+  getCandidateProfile,
+  getCandidateProfileById,
+};

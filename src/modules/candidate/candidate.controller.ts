@@ -25,4 +25,20 @@ const getCandidateProfile = catchAsync(async (req, res) => {
   });
 });
 
-export const CandidateController = { createCandidate, getCandidateProfile };
+const getCandidateProfileById = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await CandidateService.getCandidateProfileById(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Candidate profile retrieved successfully",
+    data: result,
+  });
+});
+
+export const CandidateController = {
+  createCandidate,
+  getCandidateProfile,
+  getCandidateProfileById,
+};

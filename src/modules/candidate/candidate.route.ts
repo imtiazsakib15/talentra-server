@@ -25,4 +25,6 @@ router.get(
   CandidateController.getCandidateProfile
 );
 
+router.get("/:id", CandidateController.getCandidateProfileById);
+
 export const CandidateRoute = router;
