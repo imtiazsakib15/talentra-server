@@ -46,6 +46,22 @@ const createCompany = async (req: Request) => {
   return result;
 };
 
+const getCompanyProfile = async (userId: string) => {
+  const companyProfile = await prisma.company.findUnique({
+    where: {
+      userId,
+    },
+    include: {
+      user: true,
+    },
+  });
+  if (!companyProfile)
+    throw new AppError(httpStatus.NOT_FOUND, "Company profile not found");
+
+  return companyProfile;
+};
+
 export const CompanyService = {
   createCompany,
+  getCompanyProfile,
 };

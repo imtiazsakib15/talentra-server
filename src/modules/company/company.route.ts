@@ -16,4 +16,6 @@ router.post(
   CompanyController.createCompany
 );
 
+router.get("/me", auth(UserRole.COMPANY), CompanyController.getCompanyProfile);
+
 export const CompanyRoute = router;
