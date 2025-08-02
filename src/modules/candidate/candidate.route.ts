@@ -27,4 +27,10 @@ router.get(
 
 router.get("/:id", CandidateController.getCandidateProfileById);
 
+router.put(
+  "/visibility",
+  auth(UserRole.CANDIDATE),
+  CandidateController.updateVisibility
+);
+
 export const CandidateRoute = router;

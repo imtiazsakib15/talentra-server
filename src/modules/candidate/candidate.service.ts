@@ -79,8 +79,22 @@ const getCandidateProfileById = async (id: string) => {
   return candidateProfile;
 };
 
+const updateVisibility = async (userId: string, isVisible: boolean) => {
+  const updatedProfile = await prisma.candidate.update({
+    where: {
+      userId,
+    },
+    data: {
+      isVisible,
+    },
+  });
+
+  return updatedProfile;
+};
+
 export const CandidateService = {
   createCandidate,
   getCandidateProfile,
   getCandidateProfileById,
+  updateVisibility,
 };

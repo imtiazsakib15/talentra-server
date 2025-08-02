@@ -37,8 +37,23 @@ const getCandidateProfileById = catchAsync(async (req, res) => {
   });
 });
 
+const updateVisibility = catchAsync(async (req, res) => {
+  const result = await CandidateService.updateVisibility(
+    req.user!.userId,
+    req.body.isVisible
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Candidate profile visibility updated successfully",
+    data: result,
+  });
+});
+
 export const CandidateController = {
   createCandidate,
   getCandidateProfile,
   getCandidateProfileById,
+  updateVisibility,
 };
