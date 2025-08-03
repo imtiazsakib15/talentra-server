@@ -20,18 +20,27 @@ enum UserStatus {
   PENDING
 }
 
+enum InterestStatus {
+  ACCEPTED
+  REJECTED
+  PENDING
+}
+
 model User {
   id        String     @id @default(uuid())
   email     String     @unique
   password  String
   role      UserRole   @default(CANDIDATE)
   status    UserStatus @default(PENDING)
+  lastLogin DateTime?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  lastLogin DateTime?
 
   candidate Candidate?
   company   Company?
+
+  interestsFrom Interest[] @relation("SentBy")
+  interestsTo   Interest[] @relation("ReceivedBy")
 
   @@map("users")
 }
@@ -70,4 +79,19 @@ model Company {
   user User @relation(fields: [userId], references: [id])
 
   @@map("companies")
+}
+
+model Interest {
+  id        String         @id @default(uuid())
+  fromId    String
+  toId      String
+  message   String?
+  status    InterestStatus @default(PENDING)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  fromUser User @relation("SentBy", fields: [fromId], references: [id], onDelete: Cascade)
+  toUser   User @relation("ReceivedBy", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId])
 }
