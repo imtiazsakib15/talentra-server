@@ -22,7 +22,7 @@ enum UserStatus {
 
 enum InterestStatus {
   ACCEPTED
-  REJECTED
+  DECLINED
   PENDING
 }
 
@@ -38,9 +38,6 @@ model User {
 
   candidate Candidate?
   company   Company?
-
-  interestsFrom Interest[] @relation("SentBy")
-  interestsTo   Interest[] @relation("ReceivedBy")
 
   @@map("users")
 }
@@ -60,7 +57,8 @@ model Candidate {
   isAvailable Boolean   @default(false)
   isVisible   Boolean   @default(true)
 
-  user User @relation(fields: [userId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
+  interestsTo Interest[]
 
   @@map("candidates")
 }
@@ -76,22 +74,24 @@ model Company {
   country     String
   description String
 
-  user User @relation(fields: [userId], references: [id])
+  user          User       @relation(fields: [userId], references: [id])
+  interestsFrom Interest[]
 
   @@map("companies")
 }
 
 model Interest {
-  id        String         @id @default(uuid())
-  fromId    String
-  toId      String
-  message   String?
-  status    InterestStatus @default(PENDING)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id          String         @id @default(uuid())
+  companyId   String
+  candidateId String
+  message     String?
+  status      InterestStatus @default(PENDING)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
-  fromUser User @relation("SentBy", fields: [fromId], references: [id], onDelete: Cascade)
-  toUser   User @relation("ReceivedBy", fields: [toId], references: [id], onDelete: Cascade)
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
-  @@unique([fromId, toId])
+  @@unique([companyId, candidateId])
+  @@map("interests")
 }

@@ -14,7 +14,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let message = err.message || "Internal Server Error";
   let errorSources: ErrorSource[] = [];
   let stack = config.NODE_ENV === "development" ? err.stack : null;
-  res.status(err.statusCode).json({ statusCode, message, errorSources, stack });
+  res.status(statusCode).json({ statusCode, message, errorSources, stack });
 };
 
 export default globalErrorHandler;
