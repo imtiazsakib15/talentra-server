@@ -7,11 +7,19 @@ import { InterestSchema } from "./interest.schema";
 
 const router = Router();
 
+// Send interest to candidate
 router.post(
   "/",
   auth(UserRole.COMPANY),
   validateRequest(InterestSchema.sendInterest),
   InterestController.sendInterest
+);
+
+// Get my sent interests (Company)
+router.get(
+  "/sent",
+  auth(UserRole.COMPANY),
+  InterestController.getSentInterests
 );
 
 export const InterestRoute = router;
