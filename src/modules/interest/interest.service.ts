@@ -45,8 +45,14 @@ const getReceivedInterests = async (userId: string) => {
   return result;
 };
 
+const getInterestById = async (id: string) => {
+  const result = await prisma.interest.findUnique({ where: { id } });
+  return result;
+};
+
 export const InterestService = {
   sendInterest,
   getSentInterests,
   getReceivedInterests,
+  getInterestById,
 };

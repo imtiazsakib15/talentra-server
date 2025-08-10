@@ -29,4 +29,11 @@ router.get(
   InterestController.getReceivedInterests
 );
 
+// Get specific interest
+router.get(
+  "/:id",
+  auth(UserRole.COMPANY, UserRole.CANDIDATE),
+  InterestController.getInterestById
+);
+
 export const InterestRoute = router;
