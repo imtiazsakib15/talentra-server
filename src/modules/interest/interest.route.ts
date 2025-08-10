@@ -22,4 +22,11 @@ router.get(
   InterestController.getSentInterests
 );
 
+// Get interests I received (Candidate)
+router.get(
+  "/received",
+  auth(UserRole.CANDIDATE),
+  InterestController.getReceivedInterests
+);
+
 export const InterestRoute = router;

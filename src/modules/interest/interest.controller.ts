@@ -24,4 +24,19 @@ const getSentInterests = catchAsync(async (req, res) => {
   });
 });
 
-export const InterestController = { sendInterest, getSentInterests };
+const getReceivedInterests = catchAsync(async (req, res) => {
+  const result = await InterestService.getReceivedInterests(req.user!.userId);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Received interests retrieved successfully",
+    data: result,
+  });
+});
+
+export const InterestController = {
+  sendInterest,
+  getSentInterests,
+  getReceivedInterests,
+};

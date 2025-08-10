@@ -15,7 +15,10 @@ const sendInterest = async ({
 };
 
 const getSentInterests = async (userId: string) => {
-  const company = await prisma.company.findUnique({ where: { userId } });
+  const company = await prisma.company.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!company) throw new AppError(httpStatus.NOT_FOUND, "Company not found");
 
   const result = await prisma.interest.findMany({
@@ -26,4 +29,24 @@ const getSentInterests = async (userId: string) => {
   return result;
 };
 
-export const InterestService = { sendInterest, getSentInterests };
+const getReceivedInterests = async (userId: string) => {
+  const candidate = await prisma.candidate.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+  if (!candidate)
+    throw new AppError(httpStatus.NOT_FOUND, "Candidate not found");
+
+  const result = await prisma.interest.findMany({
+    where: {
+      candidateId: candidate.id,
+    },
+  });
+  return result;
+};
+
+export const InterestService = {
+  sendInterest,
+  getSentInterests,
+  getReceivedInterests,
+};
