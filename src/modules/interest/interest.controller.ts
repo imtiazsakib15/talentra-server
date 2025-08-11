@@ -57,10 +57,22 @@ const acceptInterest = catchAsync(async (req, res) => {
   });
 });
 
+const declineInterest = catchAsync(async (req, res) => {
+  const result = await InterestService.declineInterest(req.params.id);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Interest declined successfully",
+    data: result,
+  });
+});
+
 export const InterestController = {
   sendInterest,
   getSentInterests,
   getReceivedInterests,
   getInterestById,
   acceptInterest,
+  declineInterest,
 };

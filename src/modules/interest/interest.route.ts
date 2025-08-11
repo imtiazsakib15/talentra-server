@@ -43,4 +43,11 @@ router.put(
   InterestController.acceptInterest
 );
 
+// Decline interest (Candidate)
+router.put(
+  "/:id/decline",
+  auth(UserRole.CANDIDATE),
+  InterestController.declineInterest
+);
+
 export const InterestRoute = router;

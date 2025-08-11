@@ -59,10 +59,19 @@ const acceptInterest = async (id: string) => {
   return result;
 };
 
+const declineInterest = async (id: string) => {
+  const result = await prisma.interest.update({
+    where: { id },
+    data: { status: InterestStatus.DECLINED },
+  });
+  return result;
+};
+
 export const InterestService = {
   sendInterest,
   getSentInterests,
   getReceivedInterests,
   getInterestById,
   acceptInterest,
+  declineInterest,
 };
