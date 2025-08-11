@@ -36,4 +36,11 @@ router.get(
   InterestController.getInterestById
 );
 
+// Accept interest (Candidate)
+router.put(
+  "/:id/accept",
+  auth(UserRole.CANDIDATE),
+  InterestController.acceptInterest
+);
+
 export const InterestRoute = router;

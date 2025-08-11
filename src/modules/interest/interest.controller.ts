@@ -46,9 +46,21 @@ const getInterestById = catchAsync(async (req, res) => {
   });
 });
 
+const acceptInterest = catchAsync(async (req, res) => {
+  const result = await InterestService.acceptInterest(req.params.id);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Interest accepted successfully",
+    data: result,
+  });
+});
+
 export const InterestController = {
   sendInterest,
   getSentInterests,
   getReceivedInterests,
   getInterestById,
+  acceptInterest,
 };

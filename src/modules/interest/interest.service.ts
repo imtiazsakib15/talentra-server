@@ -1,6 +1,7 @@
 import httpStatus from "http-status";
 import prisma from "../../prisma/client";
 import { AppError } from "../../errors/AppError";
+import { InterestStatus } from "../../../generated/prisma";
 
 const sendInterest = async ({
   companyId,
@@ -50,9 +51,18 @@ const getInterestById = async (id: string) => {
   return result;
 };
 
+const acceptInterest = async (id: string) => {
+  const result = await prisma.interest.update({
+    where: { id },
+    data: { status: InterestStatus.ACCEPTED },
+  });
+  return result;
+};
+
 export const InterestService = {
   sendInterest,
   getSentInterests,
   getReceivedInterests,
   getInterestById,
+  acceptInterest,
 };
