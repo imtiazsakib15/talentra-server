@@ -43,29 +43,32 @@ model User {
 }
 
 model Candidate {
-  id          String    @id @default(uuid())
-  userId      String    @unique
+  id          String           @id @default(uuid())
+  userId      String           @unique
   fullName    String
   image       String
   experience  Int
+  skills      CandidateSkill[]
   phone       String
   address     String
   city        String
   country     String
   dateOfBirth DateTime?
   resume      String
-  isAvailable Boolean   @default(false)
-  isVisible   Boolean   @default(true)
+  isAvailable Boolean          @default(true)
+  isVisible   Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
-  user              User       @relation(fields: [userId], references: [id])
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   receivedInterests Interest[]
 
   @@map("candidates")
 }
 
 model Company {
-  id          String @id @default(uuid())
-  userId      String @unique
+  id          String   @id @default(uuid())
+  userId      String   @unique
   companyName String
   logo        String
   website     String
@@ -73,11 +76,37 @@ model Company {
   address     String
   country     String
   description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  user          User       @relation(fields: [userId], references: [id])
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   sentInterests Interest[]
 
   @@map("companies")
+}
+
+model Skill {
+  id         String           @id @default(uuid())
+  name       String           @unique
+  candidates CandidateSkill[]
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@map("skills")
+}
+
+model CandidateSkill {
+  id          String   @id @default(uuid())
+  candidateId String
+  skillId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  skill     Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, skillId])
+  @@map("candidateSkills")
 }
 
 model Interest {
