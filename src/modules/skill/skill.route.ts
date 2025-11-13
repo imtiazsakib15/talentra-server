@@ -18,4 +18,6 @@ router.get("/", SkillController.getAllSkills);
 
 router.get("/:id", auth(UserRole.ADMIN), SkillController.getSkillById);
 
+router.delete("/:id", auth(UserRole.ADMIN), SkillController.deleteSkillById);
+
 export const SkillRoute = router;
