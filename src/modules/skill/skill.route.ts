@@ -16,8 +16,15 @@ router.post(
 
 router.get("/", SkillController.getAllSkills);
 
-router.get("/:id", auth(UserRole.ADMIN), SkillController.getSkillById);
+router.get("/:id", SkillController.getSkillById);
 
-router.delete("/:id", auth(UserRole.ADMIN), SkillController.deleteSkillById);
+router.put(
+  "/:id",
+  auth(UserRole.ADMIN),
+  validateRequest(SkillSchema.createSkill),
+  SkillController.updateSkill
+);
+
+router.delete("/:id", auth(UserRole.ADMIN), SkillController.deleteSkill);
 
 export const SkillRoute = router;

@@ -17,7 +17,15 @@ const getSkillById = async (skillId: string) => {
   return result;
 };
 
-const deleteSkillById = async (skillId: string) => {
+const updateSkill = async (skillId: string, payload: { name: string }) => {
+  const result = await prisma.skill.update({
+    where: { id: skillId },
+    data: payload,
+  });
+  return result;
+};
+
+const deleteSkill = async (skillId: string) => {
   const result = await prisma.skill.delete({
     where: { id: skillId },
   });
@@ -28,5 +36,6 @@ export const SkillService = {
   createSkill,
   getAllSkills,
   getSkillById,
-  deleteSkillById,
+  updateSkill,
+  deleteSkill,
 };

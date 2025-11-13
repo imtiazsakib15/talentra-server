@@ -37,14 +37,27 @@ const getSkillById = catchAsync(async (req, res) => {
   });
 });
 
-const deleteSkillById = catchAsync(async (req, res) => {
+const updateSkill = catchAsync(async (req, res) => {
   const skillId = req.params.id;
-  await SkillService.deleteSkillById(skillId);
+  const result = await SkillService.updateSkill(skillId, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Skill updated successfully",
+    data: result,
+  });
+});
+
+const deleteSkill = catchAsync(async (req, res) => {
+  const skillId = req.params.id;
+  const result = await SkillService.deleteSkill(skillId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Skill deleted successfully",
+    data: result,
   });
 });
 
@@ -52,5 +65,6 @@ export const SkillController = {
   createSkill,
   getAllSkills,
   getSkillById,
-  deleteSkillById,
+  updateSkill,
+  deleteSkill,
 };
