@@ -16,4 +16,6 @@ router.post(
 
 router.get("/", SkillController.getAllSkills);
 
+router.get("/:id", auth(UserRole.ADMIN), SkillController.getSkillById);
+
 export const SkillRoute = router;

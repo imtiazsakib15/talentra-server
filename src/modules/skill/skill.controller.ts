@@ -25,4 +25,16 @@ const getAllSkills = catchAsync(async (req, res) => {
   });
 });
 
-export const SkillController = { createSkill, getAllSkills };
+const getSkillById = catchAsync(async (req, res) => {
+  const skillId = req.params.id;
+  const result = await SkillService.getSkillById(skillId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Skill retrieved successfully",
+    data: result,
+  });
+});
+
+export const SkillController = { createSkill, getAllSkills, getSkillById };

@@ -10,4 +10,11 @@ const getAllSkills = async () => {
   return result;
 };
 
-export const SkillService = { createSkill, getAllSkills };
+const getSkillById = async (skillId: string) => {
+  const result = await prisma.skill.findUnique({
+    where: { id: skillId },
+  });
+  return result;
+};
+
+export const SkillService = { createSkill, getAllSkills, getSkillById };
