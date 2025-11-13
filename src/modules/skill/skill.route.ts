@@ -14,4 +14,6 @@ router.post(
   SkillController.createSkill
 );
 
+router.get("/", SkillController.getAllSkills);
+
 export const SkillRoute = router;

@@ -5,4 +5,9 @@ const createSkill = async (payload: { name: string }) => {
   return result;
 };
 
-export const SkillService = { createSkill };
+const getAllSkills = async () => {
+  const result = await prisma.skill.findMany({});
+  return result;
+};
+
+export const SkillService = { createSkill, getAllSkills };
