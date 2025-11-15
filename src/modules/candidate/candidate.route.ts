@@ -11,10 +11,7 @@ const router = Router();
 router.post(
   "/",
   auth(UserRole.CANDIDATE),
-  fileUploader.upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "resume", maxCount: 1 },
-  ]),
+  fileUploader.upload.single("image"),
   validateRequestWithFormData(CandidateSchema.createCandidate),
   CandidateController.createCandidate
 );

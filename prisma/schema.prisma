@@ -106,7 +106,7 @@ model CandidateSkill {
   skill     Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@unique([candidateId, skillId])
-  @@map("candidateSkills")
+  @@map("candidate_skills")
 }
 
 model Interest {

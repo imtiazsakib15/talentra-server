@@ -6,6 +6,7 @@ const createCandidate = z.object({
     .number()
     .int()
     .nonnegative("Experience must be a non-negative number"),
+  skills: z.array(z.string().min(1)).nonempty("At least one skill required"),
   phone: z
     .string()
     .min(7, "Phone must be at least 7 characters")
@@ -14,6 +15,7 @@ const createCandidate = z.object({
   city: z.string().min(1, "City is required"),
   country: z.string().min(1, "Country is required"),
   dateOfBirth: z.coerce.date().optional(),
+  resume: z.url("Resume must be a valid URL"),
   isAvailable: z.boolean().optional().default(false),
   isVisible: z.boolean().optional().default(true),
 });

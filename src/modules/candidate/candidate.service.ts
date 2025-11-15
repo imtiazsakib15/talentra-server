@@ -18,28 +18,41 @@ const createCandidate = async (req: Request) => {
       "Candidate profile already exists"
     );
 
-  const data = req.body;
-  const files: any = req.files;
-  if (!files?.image || !files?.resume) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Image and resume files are required"
-    );
+  const { skills, ...data } = req.body;
+
+  const uniqueSkillIds = [...new Set(skills)] as string[];
+  const validSkills = await prisma.skill.findMany({
+    where: { id: { in: uniqueSkillIds } },
+  });
+  if (validSkills.length !== uniqueSkillIds.length)
+    throw new Error("Invalid skill IDs");
+
+  const file: any = req.file;
+  if (!file) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Image file are required");
   }
 
-  const image = await fileUploader.uploadIntoCloudinary(files.image[0].path);
-  const resume = await fileUploader.uploadIntoCloudinary(files.resume[0].path);
-  if (!image || !resume) {
+  const image = await fileUploader.uploadIntoCloudinary(file.path);
+  if (!image) {
     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "File upload failed");
   }
 
   data.image = image.secure_url;
-  data.resume = resume.secure_url;
   data.userId = userId;
 
   const result = await prisma.$transaction(async (tx) => {
     const candidateProfile = await tx.candidate.create({
-      data,
+      data: {
+        ...data,
+        skills: {
+          create: uniqueSkillIds.map((skillId) => ({ skillId })),
+        },
+      },
+      include: {
+        skills: {
+          include: { skill: true },
+        },
+      },
     });
     await tx.user.update({
       where: { id: userId },
@@ -58,6 +71,9 @@ const getCandidateProfile = async (userId: string) => {
     },
     include: {
       user: true,
+      skills: {
+        include: { skill: true },
+      },
     },
   });
   if (!candidateProfile)
@@ -71,6 +87,9 @@ const getCandidateProfileById = async (id: string) => {
     where: { id },
     include: {
       user: true,
+      skills: {
+        include: { skill: true },
+      },
     },
   });
   if (!candidateProfile)
