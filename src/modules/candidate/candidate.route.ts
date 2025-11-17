@@ -16,6 +16,8 @@ router.post(
   CandidateController.createCandidate
 );
 
+router.get("/", CandidateController.getAllCandidatesProfile);
+
 router.get(
   "/me",
   auth(UserRole.CANDIDATE),

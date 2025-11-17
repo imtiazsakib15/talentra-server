@@ -14,6 +14,18 @@ const createCandidate = catchAsync(async (req, res) => {
   });
 });
 
+const getAllCandidatesProfile = catchAsync(async (req, res) => {
+  const result = await CandidateService.getAllCandidatesProfile(req.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "All candidates profile retrieved successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
 const getCandidateProfile = catchAsync(async (req, res) => {
   const result = await CandidateService.getCandidateProfile(req.user!.userId);
 
@@ -53,6 +65,7 @@ const updateVisibility = catchAsync(async (req, res) => {
 
 export const CandidateController = {
   createCandidate,
+  getAllCandidatesProfile,
   getCandidateProfile,
   getCandidateProfileById,
   updateVisibility,

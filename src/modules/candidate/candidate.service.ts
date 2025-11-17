@@ -64,6 +64,106 @@ const createCandidate = async (req: Request) => {
   return result;
 };
 
+const getAllCandidatesProfile = async (query: any) => {
+  const {
+    skills,
+    experienceMin,
+    location,
+    country,
+    available,
+    visible = "true",
+    page = "1",
+    limit = "20",
+  } = query;
+
+  // Pagination
+  const pageNum = parseInt(page as string) || 1;
+  const pageSize = parseInt(limit as string) || 20;
+
+  // Prisma filter object
+  const filter: any = {
+    user: { status: UserStatus.ACTIVE },
+  };
+
+  // Skill filtering (skills=react,nextjs)
+  if (skills) {
+    const skillArray = (skills as string).split(",").map((s) => s.trim());
+
+    filter.skills = {
+      some: {
+        skill: {
+          name: { in: skillArray },
+        },
+      },
+    };
+  }
+
+  // Experience filter
+  if (experienceMin) {
+    filter.experience = {
+      gte: Number(experienceMin),
+    };
+  }
+
+  // Location filter
+  if (location) {
+    filter.city = {
+      contains: location as string,
+      mode: "insensitive",
+    };
+  }
+
+  // Country filter
+  if (country) {
+    filter.country = {
+      contains: country as string,
+      mode: "insensitive",
+    };
+  }
+
+  // Availability
+  if (available) {
+    filter.isAvailable = available === "true";
+  }
+
+  // Visibility
+  filter.isVisible = visible === "true";
+
+  // Fetch candidates
+  const candidates = await prisma.candidate.findMany({
+    where: filter,
+    include: {
+      skills: {
+        include: {
+          skill: true,
+        },
+      },
+      user: {
+        select: {
+          email: true,
+          status: true,
+        },
+      },
+    },
+    skip: (pageNum - 1) * pageSize,
+    take: pageSize,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const total = await prisma.candidate.count({ where: filter });
+
+  const meta = {
+    total,
+    page: pageNum,
+    limit: pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
+
+  return { data: candidates, meta };
+};
+
 const getCandidateProfile = async (userId: string) => {
   const candidateProfile = await prisma.candidate.findUnique({
     where: {
@@ -113,6 +213,7 @@ const updateVisibility = async (userId: string, isVisible: boolean) => {
 
 export const CandidateService = {
   createCandidate,
+  getAllCandidatesProfile,
   getCandidateProfile,
   getCandidateProfileById,
   updateVisibility,
