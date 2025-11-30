@@ -68,7 +68,7 @@ const getAllCandidatesProfile = async (query: any) => {
   const {
     skills,
     experienceMin,
-    location,
+    city,
     country,
     available,
     visible = "true",
@@ -106,9 +106,9 @@ const getAllCandidatesProfile = async (query: any) => {
   }
 
   // Location filter
-  if (location) {
+  if (city) {
     filter.city = {
-      contains: location as string,
+      contains: city as string,
       mode: "insensitive",
     };
   }

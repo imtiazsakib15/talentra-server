@@ -5,6 +5,7 @@ import prisma from "../../prisma/client";
 import { UserRole, UserStatus } from "../../../generated/prisma";
 import { JwtHelper } from "../../utils/jwt";
 import config from "../../config";
+import { TUserInfo } from "../../types";
 
 const register = async ({
   email,
@@ -37,7 +38,12 @@ const register = async ({
       "User registration failed"
     );
 
-  const payload = { userId: user.id, email: user.email, role: user.role };
+  const payload = {
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+  };
   const accessToken = JwtHelper.generateToken(
     payload,
     config.ACCESS_TOKEN_SECRET!,
@@ -49,10 +55,7 @@ const register = async ({
     config.REFRESH_TOKEN_EXPIRY!
   );
 
-  return {
-    accessToken,
-    refreshToken,
-  };
+  return { user: payload, accessToken, refreshToken };
 };
 
 const login = async ({
@@ -70,6 +73,8 @@ const login = async ({
       role: true,
       password: true,
       status: true,
+      candidate: true,
+      company: true,
     },
   });
   if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
@@ -89,7 +94,15 @@ const login = async ({
     data: { lastLogin: new Date() },
   });
 
-  const payload = { userId: user.id, email: user.email, role: user.role };
+  const payload: TUserInfo = {
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+  };
+  user.candidate?.id && (payload["candidateId"] = user.candidate.id);
+  user.company?.id && (payload["companyId"] = user.company.id);
+
   const accessToken = JwtHelper.generateToken(
     payload,
     config.ACCESS_TOKEN_SECRET!,
@@ -102,6 +115,7 @@ const login = async ({
   );
 
   return {
+    user: payload,
     accessToken,
     refreshToken,
   };

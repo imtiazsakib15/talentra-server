@@ -2,6 +2,7 @@ import z from "zod";
 
 const createCandidate = z.object({
   fullName: z.string().min(1, "Full name is required"),
+  designation: z.string().min(1, "Designation is required"),
   experience: z.coerce
     .number()
     .int("Experience must be an integer")
@@ -15,7 +16,7 @@ const createCandidate = z.object({
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
   country: z.string().min(1, "Country is required"),
-  dateOfBirth: z.date({ message: "Date of Birth is required" }),
+  dateOfBirth: z.coerce.date({ message: "Date of Birth is required" }),
   resume: z.url("Resume must be a valid URL"),
   isAvailable: z.boolean().optional().default(true),
   isVisible: z.boolean().optional().default(true),

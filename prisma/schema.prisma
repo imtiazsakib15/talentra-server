@@ -20,7 +20,7 @@ enum UserStatus {
   PENDING
 }
 
-enum InterestStatus {
+enum InvitationStatus {
   ACCEPTED
   DECLINED
   PENDING
@@ -46,6 +46,7 @@ model Candidate {
   id          String           @id @default(uuid())
   userId      String           @unique
   fullName    String
+  designation String 
   image       String
   experience  Int
   skills      CandidateSkill[]
@@ -61,7 +62,7 @@ model Candidate {
   updatedAt   DateTime         @updatedAt
 
   user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  receivedInterests Interest[]
+  receivedInvitations Invitation[]
 
   @@map("candidates")
 }
@@ -80,7 +81,7 @@ model Company {
   updatedAt   DateTime @updatedAt
 
   user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sentInterests Interest[]
+  sentInvitations Invitation[]
 
   @@map("companies")
 }
@@ -109,12 +110,12 @@ model CandidateSkill {
   @@map("candidate_skills")
 }
 
-model Interest {
+model Invitation {
   id          String         @id @default(uuid())
   companyId   String
   candidateId String
   message     String?
-  status      InterestStatus @default(PENDING)
+  status      InvitationStatus @default(PENDING)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 

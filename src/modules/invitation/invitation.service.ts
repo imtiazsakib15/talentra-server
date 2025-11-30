@@ -1,16 +1,16 @@
 import httpStatus from "http-status";
 import prisma from "../../prisma/client";
 import { AppError } from "../../errors/AppError";
-import { InterestStatus } from "../../../generated/prisma";
+import { InvitationStatus } from "../../../generated/prisma";
 import { invitationEmailTemplate } from "../../libs/mail/templates/invitationEmailTemplate";
 import { sendEmail } from "../../libs/mail/transporter";
 
-const sendInterest = async (payload: {
+const sendInvitation = async (payload: {
   companyId: string;
   candidateId: string;
   message: string;
 }) => {
-  const existing = await prisma.interest.findUnique({
+  const existing = await prisma.invitation.findUnique({
     where: {
       companyId_candidateId: {
         companyId: payload.companyId,
@@ -22,11 +22,11 @@ const sendInterest = async (payload: {
   if (existing) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      "You have already sent interest to this candidate."
+      "You have already sent invitation to this candidate."
     );
   }
-
-  const interest = await prisma.interest.create({
+  console.log(existing, payload);
+  const invitation = await prisma.invitation.create({
     data: payload,
     include: {
       company: {
@@ -38,14 +38,14 @@ const sendInterest = async (payload: {
     },
   });
 
-  const candidateEmail = interest.candidate.user.email;
+  const candidateEmail = invitation.candidate.user.email;
 
   try {
     await sendEmail({
       to: candidateEmail,
       subject: "You received a new invitation",
       html: invitationEmailTemplate(
-        interest.company.companyName,
+        invitation.company.companyName,
         payload.message
       ),
     });
@@ -53,17 +53,17 @@ const sendInterest = async (payload: {
     console.error("EMAIL SEND FAILED:", err);
   }
 
-  return interest;
+  return invitation;
 };
 
-const getSentInterests = async (userId: string) => {
+const getSentInvitations = async (userId: string) => {
   const company = await prisma.company.findUnique({
     where: { userId },
     select: { id: true },
   });
   if (!company) throw new AppError(httpStatus.NOT_FOUND, "Company not found");
 
-  const result = await prisma.interest.findMany({
+  const result = await prisma.invitation.findMany({
     where: {
       companyId: company.id,
     },
@@ -74,7 +74,7 @@ const getSentInterests = async (userId: string) => {
   return result;
 };
 
-const getReceivedInterests = async (userId: string) => {
+const getReceivedInvitations = async (userId: string) => {
   const candidate = await prisma.candidate.findUnique({
     where: { userId },
     select: { id: true },
@@ -82,7 +82,7 @@ const getReceivedInterests = async (userId: string) => {
   if (!candidate)
     throw new AppError(httpStatus.NOT_FOUND, "Candidate not found");
 
-  const result = await prisma.interest.findMany({
+  const result = await prisma.invitation.findMany({
     where: {
       candidateId: candidate.id,
     },
@@ -90,32 +90,32 @@ const getReceivedInterests = async (userId: string) => {
   return result;
 };
 
-const getInterestById = async (id: string) => {
-  const result = await prisma.interest.findUnique({ where: { id } });
+const getInvitationById = async (id: string) => {
+  const result = await prisma.invitation.findUnique({ where: { id } });
   return result;
 };
 
-const acceptInterest = async (id: string) => {
-  const result = await prisma.interest.update({
+const acceptInvitation = async (id: string) => {
+  const result = await prisma.invitation.update({
     where: { id },
-    data: { status: InterestStatus.ACCEPTED },
+    data: { status: InvitationStatus.ACCEPTED },
   });
   return result;
 };
 
-const declineInterest = async (id: string) => {
-  const result = await prisma.interest.update({
+const declineInvitation = async (id: string) => {
+  const result = await prisma.invitation.update({
     where: { id },
-    data: { status: InterestStatus.DECLINED },
+    data: { status: InvitationStatus.DECLINED },
   });
   return result;
 };
 
-export const InterestService = {
-  sendInterest,
-  getSentInterests,
-  getReceivedInterests,
-  getInterestById,
-  acceptInterest,
-  declineInterest,
+export const InvitationService = {
+  sendInvitation,
+  getSentInvitations,
+  getReceivedInvitations,
+  getInvitationById,
+  acceptInvitation,
+  declineInvitation,
 };

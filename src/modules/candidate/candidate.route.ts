@@ -12,6 +12,10 @@ router.post(
   "/",
   auth(UserRole.CANDIDATE),
   fileUploader.upload.single("image"),
+  (req, res, next) => {
+    console.log("File uploaded:", req.body);
+    next();
+  },
   validateRequestWithFormData(CandidateSchema.createCandidate),
   CandidateController.createCandidate
 );
