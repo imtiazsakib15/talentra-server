@@ -2,17 +2,58 @@ import httpStatus from "http-status";
 import prisma from "../../prisma/client";
 import { AppError } from "../../errors/AppError";
 import { InterestStatus } from "../../../generated/prisma";
+import { invitationEmailTemplate } from "../../libs/mail/templates/invitationEmailTemplate";
+import { sendEmail } from "../../libs/mail/transporter";
 
-const sendInterest = async ({
-  companyId,
-  candidateId,
-}: {
+const sendInterest = async (payload: {
   companyId: string;
   candidateId: string;
+  message: string;
 }) => {
-  return await prisma.interest.create({
-    data: { companyId, candidateId },
+  const existing = await prisma.interest.findUnique({
+    where: {
+      companyId_candidateId: {
+        companyId: payload.companyId,
+        candidateId: payload.candidateId,
+      },
+    },
   });
+
+  if (existing) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "You have already sent interest to this candidate."
+    );
+  }
+
+  const interest = await prisma.interest.create({
+    data: payload,
+    include: {
+      company: {
+        include: { user: true },
+      },
+      candidate: {
+        include: { user: true },
+      },
+    },
+  });
+
+  const candidateEmail = interest.candidate.user.email;
+
+  try {
+    await sendEmail({
+      to: candidateEmail,
+      subject: "You received a new invitation",
+      html: invitationEmailTemplate(
+        interest.company.companyName,
+        payload.message
+      ),
+    });
+  } catch (err) {
+    console.error("EMAIL SEND FAILED:", err);
+  }
+
+  return interest;
 };
 
 const getSentInterests = async (userId: string) => {
@@ -25,6 +66,9 @@ const getSentInterests = async (userId: string) => {
   const result = await prisma.interest.findMany({
     where: {
       companyId: company.id,
+    },
+    include: {
+      candidate: true,
     },
   });
   return result;
