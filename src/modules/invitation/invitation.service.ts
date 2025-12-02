@@ -2,8 +2,10 @@ import httpStatus from "http-status";
 import prisma from "../../prisma/client";
 import { AppError } from "../../errors/AppError";
 import { InvitationStatus } from "../../../generated/prisma";
-import { invitationEmailTemplate } from "../../libs/mail/templates/invitationEmailTemplate";
+import { invitationEmail } from "../../libs/mail/templates/invitationEmail";
 import { sendEmail } from "../../libs/mail/transporter";
+import { invitationAcceptedEmail } from "../../libs/mail/templates/invitationAcceptedEmail";
+import { invitationDeclinedEmail } from "../../libs/mail/templates/invitationDeclinedEmail";
 
 const sendInvitation = async (payload: {
   companyId: string;
@@ -25,7 +27,7 @@ const sendInvitation = async (payload: {
       "You have already sent invitation to this candidate."
     );
   }
-  console.log(existing, payload);
+
   const invitation = await prisma.invitation.create({
     data: payload,
     include: {
@@ -44,10 +46,7 @@ const sendInvitation = async (payload: {
     await sendEmail({
       to: candidateEmail,
       subject: "You received a new invitation",
-      html: invitationEmailTemplate(
-        invitation.company.companyName,
-        payload.message
-      ),
+      html: invitationEmail(invitation.company.companyName, payload.message),
     });
   } catch (err) {
     console.error("EMAIL SEND FAILED:", err);
@@ -70,6 +69,7 @@ const getSentInvitations = async (userId: string) => {
     include: {
       candidate: true,
     },
+    orderBy: { createdAt: "desc" },
   });
   return result;
 };
@@ -86,6 +86,10 @@ const getReceivedInvitations = async (userId: string) => {
     where: {
       candidateId: candidate.id,
     },
+    include: {
+      company: true,
+    },
+    orderBy: { createdAt: "desc" },
   });
   return result;
 };
@@ -99,7 +103,29 @@ const acceptInvitation = async (id: string) => {
   const result = await prisma.invitation.update({
     where: { id },
     data: { status: InvitationStatus.ACCEPTED },
+    select: {
+      company: {
+        select: { user: { select: { email: true } }, companyName: true },
+      },
+      candidate: {
+        select: { fullName: true },
+      },
+    },
   });
+
+  try {
+    await sendEmail({
+      to: result.company.user.email,
+      subject: "Your invitation has been accepted",
+      html: invitationAcceptedEmail(
+        result.company.companyName,
+        result.candidate.fullName
+      ),
+    });
+  } catch (err) {
+    console.error("EMAIL SEND FAILED:", err);
+  }
+
   return result;
 };
 
@@ -107,7 +133,29 @@ const declineInvitation = async (id: string) => {
   const result = await prisma.invitation.update({
     where: { id },
     data: { status: InvitationStatus.DECLINED },
+    select: {
+      company: {
+        select: { user: { select: { email: true } }, companyName: true },
+      },
+      candidate: {
+        select: { fullName: true },
+      },
+    },
   });
+
+  try {
+    await sendEmail({
+      to: result.company.user.email,
+      subject: "Your invitation has been declined",
+      html: invitationDeclinedEmail(
+        result.company.companyName,
+        result.candidate.fullName
+      ),
+    });
+  } catch (err) {
+    console.error("EMAIL SEND FAILED:", err);
+  }
+
   return result;
 };
 
