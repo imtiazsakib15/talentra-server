@@ -4,6 +4,7 @@ import { CandidateRoute } from "../modules/candidate/candidate.route";
 import { CompanyRoute } from "../modules/company/company.route";
 import { InvitationRoute } from "../modules/invitation/invitation.route";
 import { SkillRoute } from "../modules/skill/skill.route";
+import { InterviewRoute } from "../modules/interview/interview.route";
 
 const router = Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes: ModuleRoute[] = [
   {
     path: "/invitations",
     route: InvitationRoute,
+  },
+  {
+    path: "/interviews",
+    route: InterviewRoute,
   },
 ];
 
