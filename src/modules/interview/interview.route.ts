@@ -7,4 +7,10 @@ const router = Router();
 
 router.post("/", auth(UserRole.COMPANY), InterviewController.scheduleInterview);
 
+router.get(
+  "/candidate",
+  auth("CANDIDATE"),
+  InterviewController.getCandidateInterviews
+);
+
 export const InterviewRoute = router;

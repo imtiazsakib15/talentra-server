@@ -3,6 +3,7 @@ import { AppError } from "../../errors/AppError";
 import { interviewScheduledEmail } from "../../libs/mail/templates/interviewScheduledEmail";
 import { sendEmail } from "../../libs/mail/transporter";
 import prisma from "../../prisma/client";
+import catchAsync from "../../utils/catchAsync";
 
 const scheduleInterview = async (payload: {
   invitationId: string;
@@ -56,4 +57,22 @@ const scheduleInterview = async (payload: {
   return result;
 };
 
-export const InterviewService = { scheduleInterview };
+const getCandidateInterviews = async (userId: string) => {
+  const candidate = await prisma.candidate.findUnique({
+    where: { userId },
+  });
+  const candidateId = candidate?.id;
+
+  if (!candidateId) {
+    throw new AppError(httpStatus.NOT_FOUND, "Candidate not found");
+  }
+
+  const result = await prisma.interview.findMany({
+    where: { candidateId },
+    include: { company: true },
+  });
+
+  return result;
+};
+
+export const InterviewService = { scheduleInterview, getCandidateInterviews };
