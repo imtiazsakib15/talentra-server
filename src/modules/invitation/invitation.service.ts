@@ -68,6 +68,7 @@ const getSentInvitations = async (userId: string) => {
     },
     include: {
       candidate: true,
+      interview: true,
     },
     orderBy: { createdAt: "desc" },
   });

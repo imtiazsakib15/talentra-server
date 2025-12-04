@@ -121,9 +121,9 @@ model Invitation {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
-  company    Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  candidate  Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  interviews Interview[]
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  candidate Candidate  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  interview Interview?
 
   @@unique([companyId, candidateId])
   @@map("interests")
